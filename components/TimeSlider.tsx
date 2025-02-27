@@ -6,8 +6,9 @@ import { useTime } from "@/contexts/TimeContext"
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 
-export const START_DATE = '2018-01-01'
-export const END_DATE = '2023-12-31'
+// Update the date constants
+export const START_DATE = '2020-01-01'
+export const END_DATE = '2024-12-31'
 
 // Update your TimeSlider component to accept date props
 interface TimeSliderProps {

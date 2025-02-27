@@ -24,18 +24,14 @@ export function useAllIncidents() {
                 CAST(Latitude AS FLOAT) as latitude,
                 CAST(Longitude AS FLOAT) as longitude
               FROM cleaned_chicago_crime_data
-              WHERE Date BETWEEN TIMESTAMP '2018-01-01' AND TIMESTAMP '2024-12-31'
-                AND Latitude IS NOT NULL 
-                AND Longitude IS NOT NULL
-              LIMIT 10000
+              WHERE Date BETWEEN TIMESTAMP '2020-01-01' AND TIMESTAMP '2024-12-31'
+               
             )
             SELECT 
               latitude,
               longitude,
               1.0 as intensity
             FROM filtered_data
-            WHERE latitude BETWEEN 41.6 AND 42.1
-              AND longitude BETWEEN -87.9 AND -87.5
           `
         })
       });

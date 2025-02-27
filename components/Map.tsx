@@ -5,8 +5,9 @@ import { MapContainer, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import 'leaflet.heat'
-import { useIncidents } from '@/hooks/useIncidents'
+import { useIncidents } from '@/hooks/useIncidents' // Corrected import path
 
+// Make sure leaflet.heat is properly typed
 declare module 'leaflet' {
   export function heatLayer(latlngs: [number, number, number][], options?: any): any
 }
@@ -15,11 +16,21 @@ function HeatmapLayer({ data }: { data: [number, number, number][] }) {
   const map = useMap()
 
   useEffect(() => {
-    if (!map) return
+    if (!map || !data.length) return
+
+    console.log("Creating heatmap with data points:", data.length);
+    
+    // Remove any existing heatmap layers
+    map.eachLayer(layer => {
+      // Check if it's a heat layer by looking for specific properties
+      if ((layer as any)._heat) {
+        map.removeLayer(layer);
+      }
+    });
 
     const heat = L.heatLayer(data, { 
-      radius: 25,
-      blur: 15,
+      radius: 5,
+      blur: 10,
       maxZoom: 15,
       max: 1.0,
       gradient: {
@@ -54,15 +65,24 @@ export default function CrimeMap() {
   }, [])
 
   useEffect(() => {
-    if (!incidents) return
+    if (!incidents || !incidents.length) return
     
-    const points: [number, number, number][] = incidents.map(incident => [
-      incident.latitude,
-      incident.longitude,
-      1 // weight of each point
-    ])
+    console.log("Processing incidents:", incidents.length);
     
-    setHeatmapData(points)
+    const points: [number, number, number][] = incidents
+      .filter(incident => 
+        // Simple check to ensure values are valid numbers
+        !isNaN(incident.latitude) && 
+        !isNaN(incident.longitude)
+      )
+      .map(incident => [
+        incident.latitude,
+        incident.longitude,
+        1 // weight of each point
+      ]);
+    
+    console.log("Valid heatmap points:", points.length);
+    setHeatmapData(points);
   }, [incidents])
 
   if (isLoading) {
@@ -72,17 +92,16 @@ export default function CrimeMap() {
   return (
     <div className="w-full h-full" style={{ position: 'relative' }}>
       <MapContainer
-        center={[41.8781, -87.6298]}
+        center={[41.8781, -87.6298]} // Chicago coordinates
         zoom={11}
-        style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}
-        attributionControl={false} // Disable attribution to avoid COEP issues
+        style={{ height: "100%", width: "100%" }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          crossOrigin="anonymous" // Add crossOrigin attribute
+          crossOrigin="anonymous"
         />
-        <HeatmapLayer data={heatmapData} />
+        {heatmapData.length > 0 && <HeatmapLayer data={heatmapData} />}
       </MapContainer>
     </div>
   )

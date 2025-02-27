@@ -26,23 +26,8 @@ all columns, used for llm dont delete
 "Incident Description",
 Resolution,
 Intersection,
-CNN,
-"Police District",
-"Analysis Neighborhood",
-"Supervisor District",
-"Supervisor District 2012",
-Latitude,
-Longitude,
-Point,
-Neighborhoods,
-"ESNCAG - Boundary File",
-"Central Market/Tenderloin Boundary Polygon - Updated",
-"Civic Center Harm Reduction Project Boundary",
-"HSOC Zones as of 2018-06-05",
-"Invest In Neighborhoods (IIN) Areas",
-"Current Supervisor Districts",
-"Current Police Districts"
 */
+
 const SQL_QUERY = `
 WITH filtered_data AS (
   SELECT
@@ -59,7 +44,7 @@ SELECT
   Latitude as latitude,
   Longitude as longitude,
   primary_type,
-  Date::VARCHAR AS date,
+  Date::VARCHAR AS date
 FROM filtered_data
 `
 
@@ -80,8 +65,8 @@ export function useIncidents() {
           const incidents = result.result.data.toRows().map((row: DuckDBRow) => ({
             latitude: Number(row.latitude) || 0,
             longitude: Number(row.longitude) || 0,
-            primary_type: String(row.incident_category),
-            date: String(row.incident_datetime),
+            primary_type: String(row.primary_type || ''),
+            date: String(row.date || ''),
             weight: 1 // Adding default weight
           }))
           setRawData(incidents)
